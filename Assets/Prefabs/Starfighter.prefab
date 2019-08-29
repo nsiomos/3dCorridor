@@ -85,11 +85,11 @@ MonoBehaviour:
   projectile: {fileID: 7173273744639733276, guid: f576e7a1162269d46a79e619071f6581,
     type: 3}
   throttle: 200
-  manouverabilityAt100: 1
+  manouverabilityAt100: 1.25
   strafeFactor: 2.5
-  moveBorderSoftDistance: 0
-  moveBorderHardDistance: 0
-  cameraFollowSpeedFactor: 0.3
+  moveBorderSoftDistance: 25
+  moveBorderHardDistance: 12.5
+  cameraFollowSpeedFactor: 0.25
   fireRate: 10
 --- !u!54 &-9118455856217413552
 Rigidbody:

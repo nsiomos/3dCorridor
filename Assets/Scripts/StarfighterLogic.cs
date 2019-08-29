@@ -17,7 +17,8 @@ public class StarfighterLogic
         {
             deltaPosition.x -= Mathf.Sign(deltaPosition.x) * (absTargetPositionX - hardBorderX);
         }
-        else if (absTargetPositionX > softBorderX)
+        else if (absTargetPositionX > softBorderX 
+            && Mathf.Sign(deltaPosition.x) == Mathf.Sign(position.x))
         {
             deltaPosition.x = Mathf.Lerp(deltaPosition.x, 0, 1 - (hardBorderX - absTargetPositionX) / (hardBorderX - softBorderX));
         }
@@ -29,7 +30,8 @@ public class StarfighterLogic
         {
             deltaPosition.y -= Mathf.Sign(deltaPosition.y) * (absTargetPositionY - hardBorderY);
         }
-        else if (absTargetPositionY > softBorderY)
+        else if (absTargetPositionY > softBorderY
+            && Mathf.Sign(deltaPosition.y) == Mathf.Sign(position.y))
         {
             deltaPosition.y = Mathf.Lerp(deltaPosition.y, 0, 1 - (hardBorderY - absTargetPositionY) / (hardBorderY - softBorderY));
         }

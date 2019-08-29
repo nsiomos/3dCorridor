@@ -8,6 +8,7 @@ public class Starfighter : ActiveObject
     private Transform firePositionLeft;
     private Transform firePositionRight;
 
+    private bool isPaused = false;
     private StarfighterLogic logic = new StarfighterLogic();
 
     public Projectile projectile;
@@ -54,10 +55,26 @@ public class Starfighter : ActiveObject
         logic.Fire(Time.time);
     }
 
+    private void TogglePause()
+    {
+        isPaused = !isPaused;
+        Time.timeScale = (isPaused) ? 0 : 1;
+    }
+
     // Update is called once per frame
     protected override void Update()
     {
         base.Update();
+
+        if (Input.GetButton(Constants.ButtonPause))
+        {
+            TogglePause();
+        }
+
+        if (isPaused)
+        {
+            return;
+        }
 
         Vector3 moveAxis = logic.GetMoveAxis(Input.GetAxis(Constants.AxisHorizontal), Input.GetAxis(Constants.AxisVertical), Input.GetAxis(Constants.AxisStrafe), strafeFactor);
         float strafeAxis = Input.GetAxis(Constants.AxisStrafe);
