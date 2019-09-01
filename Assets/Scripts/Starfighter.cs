@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Starfighter : ActiveObject
 {
+    private LevelMover levelMover;
     private Transform firePositionMain;
     private Transform firePositionLeft;
     private Transform firePositionRight;
@@ -13,32 +14,46 @@ public class Starfighter : ActiveObject
 
     public Projectile projectile;
 
-    public float throttle = 100;
+    public float throttle;
 
     // ratio of sideward to forward movement at throttle 100, i.e. 1 means at throttle 100 we move 100 sidewards
-    public float manouverabilityAt100 = 0.33f;
+    public float manouverabilityAt100;
 
-    public float strafeFactor = 4;
-    public float moveBorderSoftDistance = 30;
-    public float moveBorderHardDistance = 10;
-    public float cameraFollowSpeedFactor = 0.5f;
+    public float strafeFactor;
+    public float moveBorderSoftDistance;
+    public float moveBorderHardDistance;
+    public float accelerateFactor;
+    public float maxAccelerometer;
+    public float accelerometerDepletionRate;
+    public float accelerometerRefillRate;
+    public float starfighterToLevelMoverRatioOfAcceleration;
+    public float accelerationResetSpeedFactor;
+    public float cameraFollowSpeedFactor;
     public float fireRate;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        levelMover = transform.parent.GetComponent<LevelMover>();
+        firePositionMain = transform.Find("FirePositionMain");
+        firePositionLeft = transform.Find("FirePositionLeft");
+        firePositionRight = transform.Find("FirePositionRight");
+    }
 
     // Start is called before the first frame update
     protected override void Start()
     {
         base.Start();
 
-        firePositionMain = transform.Find("FirePositionMain");
-        firePositionLeft = transform.Find("FirePositionLeft");
-        firePositionRight = transform.Find("FirePositionRight");
+        logic.InitAccelerate(maxAccelerometer);
     }
 
     private void Move(Vector3 moveAxis, float strafeAxis)
     {
         transform.position = logic.GetPosition(transform.position, moveAxis, throttle, manouverabilityAt100, 
             Section.AddedQuadrantsEachHorizontalDirection, Section.AddedQuadrantsEachVerticalDirection, Quadrant.QuadrantSize,
-            moveBorderSoftDistance, moveBorderHardDistance, Time.deltaTime);
+            moveBorderSoftDistance, moveBorderHardDistance, starfighterToLevelMoverRatioOfAcceleration, Time.deltaTime);
         transform.rotation = logic.GetLookRotation(moveAxis, throttle, manouverabilityAt100) * logic.GetTiltRotation(moveAxis, strafeAxis, throttle, manouverabilityAt100);
         Camera.main.transform.position = logic.GetCameraPosition(transform.position, cameraFollowSpeedFactor);
         Camera.main.transform.rotation = logic.GetCameraTiltRotation(moveAxis, cameraFollowSpeedFactor);
@@ -66,7 +81,7 @@ public class Starfighter : ActiveObject
     {
         base.Update();
 
-        if (Input.GetButton(Constants.ButtonPause))
+        if (Input.GetButtonDown(Constants.ButtonPause))
         {
             TogglePause();
         }
@@ -76,9 +91,17 @@ public class Starfighter : ActiveObject
             return;
         }
 
-        Vector3 moveAxis = logic.GetMoveAxis(Input.GetAxis(Constants.AxisHorizontal), Input.GetAxis(Constants.AxisVertical), Input.GetAxis(Constants.AxisStrafe), strafeFactor);
+        transform.position = logic.UpdateAccelerate(transform.position, transform.localPosition, 
+            Input.GetAxis(Constants.AxisAccelerate), throttle, starfighterToLevelMoverRatioOfAcceleration, accelerationResetSpeedFactor, 
+            maxAccelerometer, accelerometerDepletionRate, accelerometerRefillRate, Time.deltaTime);
+
+        Vector3 moveAxis = logic.GetMoveAxis(Input.GetAxis(Constants.AxisHorizontal), Input.GetAxis(Constants.AxisVertical), 
+            Input.GetAxis(Constants.AxisStrafe), strafeFactor,
+            Input.GetAxis(Constants.AxisAccelerate), accelerateFactor, 100);
         float strafeAxis = Input.GetAxis(Constants.AxisStrafe);
-        if (moveAxis == Vector3.zero && strafeAxis == 0)
+        float accelerateAxis = Input.GetAxis(Constants.AxisAccelerate);
+
+        if (moveAxis == Vector3.forward && strafeAxis == 0 && accelerateAxis == 0)
         {
             if (transform.rotation != Quaternion.identity)
             {
@@ -89,6 +112,8 @@ public class Starfighter : ActiveObject
         else {
             Move(moveAxis, strafeAxis);
         }
+        levelMover.transform.position = logic.GetLevelMoverPosition(levelMover.transform.position, moveAxis, throttle, starfighterToLevelMoverRatioOfAcceleration, Time.deltaTime);
+
 
         if (Input.GetButton(Constants.ButtonFire)
             && logic.CanFire(Time.time, fireRate))

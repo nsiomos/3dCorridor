@@ -4,7 +4,54 @@ using UnityEngine;
 
 public class StarfighterLogic
 {
+    private bool isAccelerating = false;
+    private float accelerometer = 0;
     private float lastFiredTime = -float.MaxValue;
+
+    public void InitAccelerate(float maxAccelerometer)
+    {
+        accelerometer = maxAccelerometer;
+    }
+
+    public Vector3 UpdateAccelerate(Vector3 position, Vector3 localPosition, 
+        float inputAxisAccelerate, float throttle, float starfighterToLevelMoverRatioOfAcceleration, float accelerationResetSpeedFactor,
+        float maxAccelerometer, float accelerometerDepleteRate, float accelerometerRefillRate, float deltaTime)
+    {
+        float deltaPositionZAccelerationReset = 0;
+
+        if (! isAccelerating)
+        {
+            if (accelerometer < maxAccelerometer)
+            {
+                accelerometer = Mathf.Min(accelerometer + accelerometerRefillRate * deltaTime, maxAccelerometer);
+            }
+
+            if (accelerometer == maxAccelerometer && inputAxisAccelerate != 0) {
+                isAccelerating = true;
+            }
+
+            if (localPosition.z != 0)
+            {
+                float forwardAccelerateSpeed = throttle * starfighterToLevelMoverRatioOfAcceleration;
+                deltaPositionZAccelerationReset -= Mathf.Sign(localPosition.z) * Mathf.Min(forwardAccelerateSpeed * accelerationResetSpeedFactor * deltaTime, Mathf.Abs(localPosition.z));
+            }
+        }
+        else
+        {
+            if (accelerometer > 0)
+            {
+                accelerometer = Mathf.Max(accelerometer - accelerometerDepleteRate * deltaTime, 0);
+                if (accelerometer == 0 || inputAxisAccelerate == 0)
+                {
+                    isAccelerating = false;
+                }
+            }
+        }
+
+        Debug.Log(accelerometer);
+
+        return position + deltaPositionZAccelerationReset * Vector3.forward;
+    }
 
     private Vector3 ClampToBorder(Vector3 position, Vector3 deltaPosition, 
         int addedQuadrantsEachHorizontalDirection, int addedQuadrantsEachVerticalDirection, int quadrantSize,
@@ -40,15 +87,15 @@ public class StarfighterLogic
         return deltaPosition;
     }
 
-    public Vector3 GetMoveAxis(float inputAxisHorizontal, float inputAxisVertical, float inputAxisStrafe, float strafeFactor)
+    public Vector3 GetMoveAxis(float inputAxisHorizontal, float inputAxisVertical, 
+        float inputAxisStrafe, float strafeFactor,
+        float inputAxisAccelerate, float accelerateFactor, float maxAccelerometer)
     {
         Vector3 moveAxis = new Vector3(inputAxisHorizontal, inputAxisVertical, 0);
-        if (moveAxis == Vector3.zero && inputAxisStrafe == 0)
-        {
-            return Vector3.zero;
-        }
 
         moveAxis = Mathf.Max(Mathf.Abs(moveAxis.x), Mathf.Abs(moveAxis.y)) * moveAxis.normalized;
+        moveAxis.z = 1;
+
         if (inputAxisStrafe != 0)
         {
             if (Mathf.Sign(moveAxis.x) == Mathf.Sign(inputAxisStrafe))
@@ -61,22 +108,39 @@ public class StarfighterLogic
             }
         }
 
+        if (isAccelerating)
+        {
+            float dampenerFactor = Mathf.Lerp(0, 1, accelerometer / maxAccelerometer);
+            moveAxis.z += (accelerateFactor - 1) * dampenerFactor * inputAxisAccelerate;
+        }
+
         return moveAxis;
     }
 
     public Vector3 GetPosition(Vector3 position, Vector3 moveAxis, float throttle, float manouverabilityAt100,
         int addedQuadrantsEachHorizontalDirection, int addedQuadrantsEachVerticalDirection, int quadrantSize, 
-        float moveBorderSoftDistance, float moveBorderHardDistance, float deltaTime)
+        float moveBorderSoftDistance, float moveBorderHardDistance, float starfighterToLevelMoverRatioOfAcceleration, float deltaTime)
     {
+        float starfighterPortionOfMoveAxisZ = starfighterToLevelMoverRatioOfAcceleration * (moveAxis.z - 1);  // one part of the acceleration goes to starfighter, the rest to the levelMover
+        float forwardMoveSpeed = throttle;  
         float sidewardsMoveSpeed = manouverabilityAt100 * 100 * 100 / throttle;
 
-        Vector3 deltaPosition = moveAxis * sidewardsMoveSpeed * deltaTime;
+        Vector3 deltaPosition = new Vector3(moveAxis.x * sidewardsMoveSpeed, 
+            moveAxis.y * sidewardsMoveSpeed, 
+            starfighterPortionOfMoveAxisZ * forwardMoveSpeed) 
+            * deltaTime;
         deltaPosition = ClampToBorder(position, deltaPosition, 
             addedQuadrantsEachHorizontalDirection, addedQuadrantsEachVerticalDirection, quadrantSize, 
             moveBorderSoftDistance, moveBorderHardDistance);
-        deltaPosition.z = 0;
 
         return position + deltaPosition;
+    }
+
+    public Vector3 GetLevelMoverPosition(Vector3 levelMoverPosition, Vector3 moveAxis, float throttle, float starfighterToLevelMoverRatioOfAcceleration, float deltaTime)
+    {
+        float LevelMoverPortionOfMoveAxisZ = 1 + (1 - starfighterToLevelMoverRatioOfAcceleration) * (moveAxis.z - 1); // one part of the acceleration goes to starfighter, the rest to the levelMover
+        float forwardMoveSpeed = throttle;
+        return levelMoverPosition + LevelMoverPortionOfMoveAxisZ * forwardMoveSpeed * Vector3.forward * deltaTime;
     }
 
     public Quaternion GetLookRotation(Vector3 moveAxis, float throttle, float manouverabilityAt100)

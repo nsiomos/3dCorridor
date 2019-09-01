@@ -76,12 +76,12 @@ namespace Tests
             }
         }
 
-        [TestCaseSource("StopsOnHardBorderTestCases")]
+        /*[TestCaseSource("StopsOnHardBorderTestCases")]
         public Vector3 TestStopsOnHardBorder(Vector3 position, Vector3 moveAxis)
         {
             return sut.GetPosition(position, moveAxis, TestThrottle, TestManouverabilityAt100,
                 TestAddedQuadrantsEachHorizontalDirection, TestAddedQuadrantsEachVerticalDirection, TestQuadrantSize,
                 TestMoveBorderSoftDistance, TestMoveBorderHardDistance, TestDeltaTime);
-        }
+        }*/
     }
 }

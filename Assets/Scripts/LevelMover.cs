@@ -15,9 +15,10 @@ public class LevelMover : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (starfighter != null)
-        {
-            transform.Translate(Vector3.forward * starfighter.throttle * Time.deltaTime);
-        }
+        //if (starfighter != null)
+        //{
+        //    transform.Translate(Vector3.forward * starfighter.throttle * Time.deltaTime);
+        //
+        //}
     }
 }

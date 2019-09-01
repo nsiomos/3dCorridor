@@ -86,9 +86,15 @@ MonoBehaviour:
     type: 3}
   throttle: 200
   manouverabilityAt100: 1.25
-  strafeFactor: 2.5
+  strafeFactor: 2
   moveBorderSoftDistance: 25
   moveBorderHardDistance: 12.5
+  accelerateFactor: 2
+  maxAccelerometer: 100
+  accelerometerDepletionRate: 30
+  accelerometerRefillRate: 20
+  starfighterToLevelMoverRatioOfAcceleration: 0.2
+  accelerationResetSpeedFactor: 1.25
   cameraFollowSpeedFactor: 0.25
   fireRate: 10
 --- !u!54 &-9118455856217413552
