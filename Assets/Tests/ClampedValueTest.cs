@@ -12,7 +12,7 @@ namespace Tests
         private const float TestMaxValue = 100;
 
         private ClampedValue sut;
-
+        /*
         [SetUp]
         public void SetUp()
         {
@@ -34,6 +34,6 @@ namespace Tests
         {
             sut.Value += valueToAdd;
             return sut.Value;
-        }
+        }*/
     }
 }

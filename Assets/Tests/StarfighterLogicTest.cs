@@ -7,7 +7,7 @@ namespace Tests
 {
     [TestFixture]
     public class StarfighterLogicTest
-    {
+    {/*
         private const float TestStartTime = 10;
         private const float TestFireRate = 0.5f;
         private const int TestAddedQuadrantsEachHorizontalDirection = 4;
@@ -75,7 +75,7 @@ namespace Tests
                 yield return TestUtils.CreateTestCaseData("FromOutsideSoftBorderDownRight", new Vector3(TestSoftBorderX - 10, -(TestSoftBorderY - 10), 0), new Vector3(1, -1, 0).normalized).Returns(new Vector3(TestHardBorderX, -TestHardBorderY, 0));
             }
         }
-
+        */
         /*[TestCaseSource("StopsOnHardBorderTestCases")]
         public Vector3 TestStopsOnHardBorder(Vector3 position, Vector3 moveAxis)
         {

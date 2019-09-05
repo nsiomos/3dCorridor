@@ -1,12 +1,30 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SceneBehaviour : MonoBehaviour
 {
+    public class StarfighterCreatedEventArgs : EventArgs
+    {
+        public Starfighter starfighter;
+    }
+
+    private static SceneBehaviour instance;
+    public static SceneBehaviour Instance{get { return instance; }}
+
     public const int horizontalQuadrantsPerSection = 5;
     public const int verticalQuadrantsPerSection = 3;
     public const int forwardSectionsToCreate = 3;
+
+    private EventHandler<StarfighterCreatedEventArgs> starfighterCreated;
+    public event EventHandler<StarfighterCreatedEventArgs> StarfighterCreated
+    {
+        add { starfighterCreated += value; }
+        remove { starfighterCreated -= value; }
+    }
+
+    private int lastCreatedSection = -1;
 
     public Section section;
     public GameObject scenePopulators;
@@ -14,7 +32,15 @@ public class SceneBehaviour : MonoBehaviour
     public LevelMover levelMover;
     public Starfighter starfighter;
 
-    private int lastCreatedSection = -1;
+    protected virtual void OnStarfighterCreated(StarfighterCreatedEventArgs e)
+    {
+        starfighterCreated?.Invoke(this, e);
+    }
+
+    void Awake()
+    {
+        instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -22,7 +48,7 @@ public class SceneBehaviour : MonoBehaviour
         levelMover = Instantiate(levelMover, Vector3.zero, Quaternion.identity);
         starfighter = Instantiate(starfighter, levelMover.transform);
         starfighter.transform.parent = levelMover.transform;
-        levelMover.starfighter = starfighter;
+        OnStarfighterCreated(new StarfighterCreatedEventArgs() { starfighter = starfighter });
     }
 
     private Vector3 GetSectionCenter(int z)

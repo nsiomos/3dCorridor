@@ -82,6 +82,10 @@ MonoBehaviour:
   owner: 2
   collisionType: 0
   hp: 1000
+  clampedValue:
+    minValue: -3.4028235e+38
+    value: 0
+    maxValue: 3.4028235e+38
   projectile: {fileID: 7173273744639733276, guid: f576e7a1162269d46a79e619071f6581,
     type: 3}
   throttle: 200
