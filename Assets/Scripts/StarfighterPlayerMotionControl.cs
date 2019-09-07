@@ -21,7 +21,7 @@ public class StarfighterPlayerMotionControl
 
     public void UpdateAccelerometer(float deltaTime)
     {
-        if (o.IsAccelerating)
+        if (!o.IsAccelerating)
         {
             if (!o.accelerometer.IsAtMax())
             {
