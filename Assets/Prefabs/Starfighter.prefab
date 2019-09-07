@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 5709694449684347817}
   - component: {fileID: -9118455856217413552}
   - component: {fileID: 465059791414985974}
+  - component: {fileID: 5330706393271620779}
   m_Layer: 0
   m_Name: Starfighter
   m_TagString: Untagged
@@ -82,10 +83,6 @@ MonoBehaviour:
   owner: 2
   collisionType: 0
   hp: 1000
-  clampedValue:
-    minValue: -3.4028235e+38
-    value: 0
-    maxValue: 3.4028235e+38
   projectile: {fileID: 7173273744639733276, guid: f576e7a1162269d46a79e619071f6581,
     type: 3}
   throttle: 200
@@ -94,7 +91,10 @@ MonoBehaviour:
   moveBorderSoftDistance: 25
   moveBorderHardDistance: 12.5
   accelerateFactor: 2
-  maxAccelerometer: 100
+  accelerometer:
+    minValue: 0
+    value: 0
+    maxValue: 100
   accelerometerDepletionRate: 30
   accelerometerRefillRate: 20
   starfighterToLevelMoverRatioOfAcceleration: 0.2
@@ -131,6 +131,18 @@ CapsuleCollider:
   m_Height: 12
   m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5330706393271620779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4828200372154265973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb2eed1b89ecb241aa5fa87f64770b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7677568081731608358
 GameObject:
   m_ObjectHideFlags: 0

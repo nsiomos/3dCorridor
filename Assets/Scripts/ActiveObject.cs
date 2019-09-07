@@ -7,6 +7,8 @@ public class ActiveObject : MonoBehaviour
     public enum Owner { None /*For in-game newly instantiated objects*/, Neutral, Player, Enemy}
     public enum CollisionType { Object, KineticWeapon, HeatWeapon}
 
+    protected IFramework framework;
+
     public const int ObjectMaxCollisionDamagePerTick = 100;
 
     public Owner owner = Owner.None;
@@ -63,7 +65,7 @@ public class ActiveObject : MonoBehaviour
 
     protected virtual void Awake()
     {
-
+        framework = GetComponent<IFramework>();       
     }
 
     // Start is called before the first frame update

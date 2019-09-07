@@ -125,10 +125,10 @@ public class StarfighterPlayerMotionControl
 
     public void UpdatePosition(float deltaTime)
     {
-        float starfighterPortionOfForwardTranslateVector = o.starfighterToLevelMoverRatioOfAcceleration * GetAcceleratePortionOfForwardTranslateVector(o);
+        float starfighterPortionOfForwardTranslateVector = o.starfighterToLevelMoverRatioOfAcceleration * GetAcceleratePortionOfForwardTranslateVector();
         Vector3 deltaPosition = new Vector3(o.TranslateVector.x, o.TranslateVector.y, starfighterPortionOfForwardTranslateVector) * deltaTime;
 
-        deltaPosition = ClampToBorder(o, deltaPosition);
+        deltaPosition = ClampToBorder(deltaPosition);
 
         o.transform.position += deltaPosition;
     }

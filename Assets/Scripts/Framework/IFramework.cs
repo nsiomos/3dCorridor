@@ -11,6 +11,5 @@ public interface IFramework
     bool GetInputButton(string buttonName);
     bool GetInputButtonDown(string buttonName);
 
-
     T Instantiate<T>(T original, Vector3 position, Quaternion rotation) where T : Object;
 }

@@ -47,7 +47,6 @@ public class Starfighter : ActiveObject
     private Transform firePositionLeft;
     private Transform firePositionRight;
 
-    public IFramework Framework { get; set; } = new UnityFramework();
     public bool IsPaused { get; set; } = false;
     public bool IsAccelerating { get; set; } = false;
     public Vector3 TranslateVector { get; set; }
@@ -109,17 +108,17 @@ public class Starfighter : ActiveObject
     private void TogglePause()
     {
         IsPaused = !IsPaused;
-        Framework.TimeScale = (IsPaused) ? 0 : 1;
+        framework.TimeScale = (IsPaused) ? 0 : 1;
     }
 
     private void UpdateAccelerate(float accelerateAxis)
     {
-        motionControl.UpdateAccelerometer(Framework.DeltaTime);
+        motionControl.UpdateAccelerometer(framework.DeltaTime);
         motionControl.UpdateIsAccelerating(accelerateAxis);
         if (!IsAccelerating && transform.localPosition.z != 0)
         {
             float prevLocalPositionZ = transform.localPosition.z;
-            motionControl.UpdateAccelerationResetLocalPositionZ(Framework.DeltaTime);
+            motionControl.UpdateAccelerationResetLocalPositionZ(framework.DeltaTime);
             if (transform.localPosition.z != prevLocalPositionZ)
             {
                 OnAccelerationResetLocalPositionZChanged(new AccelerationResetLocalPositionZChangedEventArgs() { prevLocalPositionZ = prevLocalPositionZ });
@@ -147,7 +146,7 @@ public class Starfighter : ActiveObject
     private void UpdatePosition()
     {
         Vector3 prevPosition = transform.position;
-        motionControl.UpdatePosition(Framework.DeltaTime);
+        motionControl.UpdatePosition(framework.DeltaTime);
         if (prevPosition != transform.position)
         {
             OnPositionChanged(new PositionChangedEventArgs() { prevPosition = prevPosition });
@@ -166,20 +165,20 @@ public class Starfighter : ActiveObject
 
     private void Fire()
     {
-        Projectile createdProjectile = Framework.Instantiate(projectile, firePositionMain.position, firePositionMain.rotation);
+        Projectile createdProjectile = framework.Instantiate(projectile, firePositionMain.position, firePositionMain.rotation);
         createdProjectile.owner = Owner.Player;
-        createdProjectile = Framework.Instantiate(projectile, firePositionLeft.position, firePositionLeft.rotation);
+        createdProjectile = framework.Instantiate(projectile, firePositionLeft.position, firePositionLeft.rotation);
         createdProjectile.owner = Owner.Player;
-        createdProjectile = Framework.Instantiate(projectile, firePositionRight.position, firePositionRight.rotation);
+        createdProjectile = framework.Instantiate(projectile, firePositionRight.position, firePositionRight.rotation);
         createdProjectile.owner = Owner.Player;
-
-        fireControl.UpdateLastFiredTime(Framework.Time);
+        
+        fireControl.UpdateLastFiredTime(framework.Time);
     }
 
     // Update is called once per frame
     protected override void Update()
     {
-        if (Framework.GetInputButtonDown(Constants.ButtonPause))
+        if (framework.GetInputButtonDown(Constants.ButtonPause))
         {
             TogglePause();
         }
@@ -191,11 +190,11 @@ public class Starfighter : ActiveObject
 
         base.Update();
 
-        bool fireButton = Framework.GetInputButton(Constants.ButtonFire);
-        float horizontalAxis = Framework.GetInputAxis(Constants.AxisHorizontal);
-        float verticalAxis = Framework.GetInputAxis(Constants.AxisVertical);
-        float strafeAxis = Framework.GetInputAxis(Constants.AxisStrafe);
-        float accelerateAxis = Framework.GetInputAxis(Constants.AxisAccelerate);
+        bool fireButton = framework.GetInputButton(Constants.ButtonFire);
+        float horizontalAxis = framework.GetInputAxis(Constants.AxisHorizontal);
+        float verticalAxis = framework.GetInputAxis(Constants.AxisVertical);
+        float strafeAxis = framework.GetInputAxis(Constants.AxisStrafe);
+        float accelerateAxis = framework.GetInputAxis(Constants.AxisAccelerate);
 
         UpdateAccelerate(accelerateAxis);
 
@@ -217,7 +216,7 @@ public class Starfighter : ActiveObject
             UpdateRotation(strafeAxis);
         }
 
-        if (fireButton  && fireControl.CanFire(Framework.Time))
+        if (fireButton  && fireControl.CanFire(framework.Time))
         {
             Fire();
         }
