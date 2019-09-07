@@ -42,7 +42,7 @@ public class LevelMover : MonoBehaviour
             {
                 // TODO starfighter logic used here?
                 levelMoverPortionOfForwardTranslateVector += (1 - starfighter.starfighterToLevelMoverRatioOfAcceleration)
-                    * StarfighterLogic.GetAcceleratePortionOfForwardTranslateVector(starfighter.TranslateVector, starfighter.throttle);
+                    * starfighter.GetAcceleratePortionOfForwardTranslateVector();
             }
 
             transform.position += levelMoverPortionOfForwardTranslateVector * Vector3.forward * Time.deltaTime;

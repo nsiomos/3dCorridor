@@ -41,6 +41,8 @@ public class Starfighter : ActiveObject
         remove { rotationChanged -= value; }
     }
 
+    private StarfighterPlayerMotionControl motionControl;
+    private StarfighterPlayerFireControl fireControl;
     private Transform firePositionMain;
     private Transform firePositionLeft;
     private Transform firePositionRight;
@@ -90,6 +92,9 @@ public class Starfighter : ActiveObject
     {
         base.Awake();
 
+        motionControl = new StarfighterPlayerMotionControl(this);
+        fireControl = new StarfighterPlayerFireControl(this);
+
         firePositionMain = transform.Find("FirePositionMain");
         firePositionLeft = transform.Find("FirePositionLeft");
         firePositionRight = transform.Find("FirePositionRight");
@@ -109,13 +114,12 @@ public class Starfighter : ActiveObject
 
     private void UpdateAccelerate(float accelerateAxis)
     {
-        accelerometer = StarfighterLogic.GetAccelerometer(accelerometer, IsAccelerating, accelerometerDepletionRate, accelerometerRefillRate, Framework.DeltaTime);
-        IsAccelerating = StarfighterLogic.GetIsAccelerating(IsAccelerating, accelerometer, accelerateAxis);
+        motionControl.UpdateAccelerometer(Framework.DeltaTime);
+        motionControl.UpdateIsAccelerating(accelerateAxis);
         if (!IsAccelerating && transform.localPosition.z != 0)
         {
             float prevLocalPositionZ = transform.localPosition.z;
-            transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y,
-                StarfighterLogic.GetAccelerationResetLocalPositionZ(transform.localPosition.z, throttle, starfighterToLevelMoverRatioOfAcceleration, accelerationResetSpeedFactor, Framework.DeltaTime));
+            motionControl.UpdateAccelerationResetLocalPositionZ(Framework.DeltaTime);
             if (transform.localPosition.z != prevLocalPositionZ)
             {
                 OnAccelerationResetLocalPositionZChanged(new AccelerationResetLocalPositionZChangedEventArgs() { prevLocalPositionZ = prevLocalPositionZ });
@@ -137,17 +141,13 @@ public class Starfighter : ActiveObject
 
     private void UpdateTranslateVector(float horizontalAxis, float verticalAxis, float strafeAxis, float accelerateAxis)
     {
-        TranslateVector = StarfighterLogic.GetTranslateVector(horizontalAxis, verticalAxis, strafeAxis, accelerateAxis,
-            throttle, manouverabilityAt100, strafeFactor,
-            IsAccelerating, accelerateFactor, accelerometer);
+        motionControl.UpdateTranslateVector(horizontalAxis, verticalAxis, strafeAxis, accelerateAxis);
     }
 
     private void UpdatePosition()
     {
         Vector3 prevPosition = transform.position;
-        transform.position = StarfighterLogic.GetPosition(transform.position, TranslateVector, throttle, starfighterToLevelMoverRatioOfAcceleration,
-            Section.AddedQuadrantsEachHorizontalDirection, Section.AddedQuadrantsEachVerticalDirection, Quadrant.QuadrantSize,
-            moveBorderSoftDistance, moveBorderHardDistance, Framework.DeltaTime);
+        motionControl.UpdatePosition(Framework.DeltaTime);
         if (prevPosition != transform.position)
         {
             OnPositionChanged(new PositionChangedEventArgs() { prevPosition = prevPosition });
@@ -157,7 +157,7 @@ public class Starfighter : ActiveObject
     private void UpdateRotation(float strafeAxis)
     {
         Quaternion prevRotation = transform.rotation;
-        transform.rotation = StarfighterLogic.GetRotation(TranslateVector, strafeAxis);
+        motionControl.UpdateRotation(strafeAxis);
         if (prevRotation != transform.rotation)
         {
             OnRotationChanged(new RotationChangedEventArgs() { prevRotation = prevRotation });
@@ -173,7 +173,7 @@ public class Starfighter : ActiveObject
         createdProjectile = Framework.Instantiate(projectile, firePositionRight.position, firePositionRight.rotation);
         createdProjectile.owner = Owner.Player;
 
-        LastFiredTime = Framework.Time;
+        fireControl.UpdateLastFiredTime(Framework.Time);
     }
 
     // Update is called once per frame
@@ -217,9 +217,14 @@ public class Starfighter : ActiveObject
             UpdateRotation(strafeAxis);
         }
 
-        if (fireButton  && StarfighterLogic.CanFire(fireRate, LastFiredTime, Framework.Time))
+        if (fireButton  && fireControl.CanFire(Framework.Time))
         {
             Fire();
         }
+    }
+
+    public float GetAcceleratePortionOfForwardTranslateVector()
+    {
+        return motionControl.GetAcceleratePortionOfForwardTranslateVector();
     }
 }
