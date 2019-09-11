@@ -69,7 +69,6 @@ public class Starfighter : ActiveObject
     public float accelerometerRefillRate;
     public float starfighterToLevelMoverRatioOfAcceleration;
     public float accelerationResetSpeedFactor;
-    public float cameraFollowSpeedFactor;
     public float fireRate;
 
     protected virtual void OnAccelerationResetLocalPositionZChanged(AccelerationResetLocalPositionZChangedEventArgs e)

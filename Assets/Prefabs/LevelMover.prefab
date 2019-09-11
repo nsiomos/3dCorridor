@@ -44,7 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9effdbc8cc3cf4945a7958cc75184d73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  starfighter: {fileID: 0}
 --- !u!1 &8677842551236371121
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,3 +140,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de1d2f57dea866240a20dc9ed5f748e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  followSpeedFactor: 0.25
+  maxTiltAngle: 30
