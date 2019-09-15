@@ -14,4 +14,13 @@ public class MathUtils
 
         return angle;
     }
+
+    public static float AbsMin(float value, float minValue)
+    {
+        return Mathf.Sign(value) * Mathf.Min(Mathf.Abs(value), minValue);
+    }
+    public static float AbsMax(float value, float maxValue)
+    {
+        return Mathf.Sign(value) * Mathf.Max(Mathf.Abs(value), maxValue);
+    }
 }

@@ -27,5 +27,25 @@ namespace Tests
         {
             return MathUtils.To180RangeAngle(angle);
         }
+
+        [TestCase(2, 1, TestName = "withPositiveValueCapped{a}", ExpectedResult = 1)]
+        [TestCase(-2, 1, TestName = "withNegativeValueCapped{a}", ExpectedResult = -1)]
+        [TestCase(0.5f, 1, TestName = "withPositiveValueNotCapped{a}", ExpectedResult = 0.5f)]
+        [TestCase(-0.5f, 1, TestName = "withNegativeValueNotCapped{a}", ExpectedResult = -0.5f)]
+        [Test]
+        public float TestAbsMin(float value, float minValue)
+        {
+            return MathUtils.AbsMin(value, minValue);
+        }
+
+        [TestCase(0.5f, 1, TestName = "withPositiveValueCapped{a}", ExpectedResult = 1)]
+        [TestCase(-0.5f, 1, TestName = "withNegativeValueCapped{a}", ExpectedResult = -1)]
+        [TestCase(2, 1, TestName = "withPositiveNotValueCapped{a}", ExpectedResult = 2)]
+        [TestCase(-2, 1, TestName = "withNegativeNotValueCapped{a}", ExpectedResult = -2)]
+        [Test]
+        public float TestAbsMax(float value, float maxValue)
+        {
+            return MathUtils.AbsMax(value, maxValue);
+        }
     }
 }

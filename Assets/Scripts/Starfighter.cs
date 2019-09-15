@@ -6,6 +6,10 @@ using UnityEngine;
 // TODO event unsubscribing on starfighter dying?
 public class Starfighter : ActiveObject
 {
+    public class AccelerometerChangedEventArgs : EventArgs
+    {
+        public float prevValue;
+    }
     public class AccelerationResetLocalPositionZChangedEventArgs : EventArgs
     {
         public float prevLocalPositionZ;
@@ -18,6 +22,13 @@ public class Starfighter : ActiveObject
     public class RotationChangedEventArgs : EventArgs
     {
         public Quaternion prevRotation;
+    }
+
+    private EventHandler<AccelerometerChangedEventArgs> accelerometerChanged;
+    public event EventHandler<AccelerometerChangedEventArgs> AccelerometerChanged
+    {
+        add { accelerometerChanged += value; }
+        remove { accelerometerChanged -= value; }
     }
 
     private EventHandler<AccelerationResetLocalPositionZChangedEventArgs> accelerationResetLocalPositionZChanged;
@@ -71,6 +82,11 @@ public class Starfighter : ActiveObject
     public float accelerationResetSpeedFactor;
     public float fireRate;
 
+    protected virtual void OnAccelerometerChanged(AccelerometerChangedEventArgs e)
+    {
+        accelerometerChanged(this, e);
+    }
+
     protected virtual void OnAccelerationResetLocalPositionZChanged(AccelerationResetLocalPositionZChangedEventArgs e)
     {
         accelerationResetLocalPositionZChanged(this, e);
@@ -112,7 +128,14 @@ public class Starfighter : ActiveObject
 
     private void UpdateAccelerate(float accelerateAxis)
     {
+        float prevAccelerometerValue = accelerometer.Value;
         motionControl.UpdateAccelerometer(framework.DeltaTime);
+        if (accelerometer.Value != prevAccelerometerValue)
+        {
+            OnAccelerometerChanged(new AccelerometerChangedEventArgs() { prevValue = prevAccelerometerValue });
+        }
+
+
         motionControl.UpdateIsAccelerating(accelerateAxis);
         if (!IsAccelerating && transform.localPosition.z != 0)
         {
