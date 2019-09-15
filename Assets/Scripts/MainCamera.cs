@@ -26,7 +26,7 @@ public class MainCamera : MonoBehaviour
     {        
         Starfighter o = (Starfighter)sender;
         //float tiltAngle = -Mathf.Sign(o.TranslateVector.x) * Mathf.Lerp(0, o.cameraFollowSpeedFactor * 30, Mathf.Abs(o.TranslateVector.normalized.x));
-        float starfighterTiltAngle = MathUtils.To180RangeAngle(o.transform.rotation.eulerAngles.z);
+        float starfighterTiltAngle = MathUtils.ToSignedAngle(o.transform.rotation.eulerAngles.z);
 
         float tiltAngle = MathUtils.AbsMin(starfighterTiltAngle, maxTiltAngle);
         transform.rotation = Quaternion.AngleAxis(tiltAngle, Vector3.forward);

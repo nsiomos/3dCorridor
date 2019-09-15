@@ -23,9 +23,9 @@ namespace Tests
         [TestCase(-540, TestName = "withNegativeAngleAtOneAnfHalfCircles{a}", ExpectedResult = -180)]
         [TestCase(-720, TestName = "withNegativeAngleAtTwoCircles{a}", ExpectedResult = 0)]
         [Test]
-        public float TestTo180RangeAngle(float angle)
+        public float TestToSignedAngle(float angle)
         {
-            return MathUtils.To180RangeAngle(angle);
+            return MathUtils.ToSignedAngle(angle);
         }
 
         [TestCase(2, 1, TestName = "withPositiveValueCapped{a}", ExpectedResult = 1)]

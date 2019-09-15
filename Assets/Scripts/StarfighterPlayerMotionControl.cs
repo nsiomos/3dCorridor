@@ -98,16 +98,16 @@ public class StarfighterPlayerMotionControl
             }
             else
             {
-                translateVector.x /= o.strafeFactor * Mathf.Abs(strafeAxis);
+                translateVector.x *= 1 / o.strafeFactor * Mathf.Abs(strafeAxis);
             }
         }
-
+        
         if (o.IsAccelerating)
         {
             float dampenerFactor = Mathf.Lerp(0, 1, o.accelerometer.Value / o.accelerometer.maxValue);
             translateVector.z += (o.accelerateFactor - 1) * dampenerFactor * accelerateAxis;
         }
-
+        
         float forwardMoveSpeed = o.throttle;
         float sidewardMoveSpeed = o.manouverabilityAt100 * 100 * 100 / o.throttle;
 
