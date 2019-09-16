@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StarfighterDefinitions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +15,7 @@ public class MainCamera : MonoBehaviour
         e.starfighter.RotationChanged += Starfighter_OnRotationChanged;
     }
 
-    private void Starfighter_OnPositionChanged(object sender, Starfighter.PositionChangedEventArgs e)
+    private void Starfighter_OnPositionChanged(object sender, PositionChangedEventArgs e)
     {
         Starfighter o = (Starfighter)sender;
         transform.position = new Vector3(followSpeedFactor * o.transform.position.x,
@@ -22,7 +23,7 @@ public class MainCamera : MonoBehaviour
             transform.position.z);
     }
 
-    private void Starfighter_OnRotationChanged(object sender, Starfighter.RotationChangedEventArgs e)
+    private void Starfighter_OnRotationChanged(object sender, RotationChangedEventArgs e)
     {        
         Starfighter o = (Starfighter)sender;
         //float tiltAngle = -Mathf.Sign(o.TranslateVector.x) * Mathf.Lerp(0, o.cameraFollowSpeedFactor * 30, Mathf.Abs(o.TranslateVector.normalized.x));

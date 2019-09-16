@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using StarfighterDefinitions;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class StarfighterPlayerMotionControl
 {
@@ -13,6 +15,8 @@ public class StarfighterPlayerMotionControl
 
     public void UpdateAccelerationResetLocalPositionZ(float deltaTime)
     {
+        Assert.AreEqual(AccelerationState.AccelerationResetting, o.AccelerationState);
+
         float forwardAccelerateSpeed = o.throttle * o.starfighterToLevelMoverRatioOfAcceleration;
         float accelerateResetSpeed = forwardAccelerateSpeed * o.accelerationResetSpeedFactor;
         o.transform.localPosition += -Mathf.Sign(o.transform.localPosition.z) * Mathf.Min(accelerateResetSpeed * deltaTime, Mathf.Abs(o.transform.localPosition.z))
@@ -21,7 +25,7 @@ public class StarfighterPlayerMotionControl
 
     public void UpdateAccelerometer(float deltaTime)
     {
-        if (!o.IsAccelerating)
+        if (o.AccelerationState != AccelerationState.Accelerating)
         {
             if (!o.accelerometer.IsAtMax())
             {
@@ -36,23 +40,33 @@ public class StarfighterPlayerMotionControl
         }
     }
 
-    public void UpdateIsAccelerating(float accelerateAxis)
+    public void UpdateAccelerationStateAfterAccelerometer(float accelerateAxis)
     {
-        if (!o.IsAccelerating)
+        if (o.AccelerationState != AccelerationState.Accelerating)
         {
             if (o.accelerometer.IsAtMax() && accelerateAxis != 0)
             {
-                o.IsAccelerating = true;
+                o.AccelerationState = AccelerationState.Accelerating;
             }
         }
         else {
             if (o.accelerometer.IsAtMin() || accelerateAxis == 0)
             {
-                o.IsAccelerating = false;
+                o.AccelerationState = AccelerationState.AccelerationResetting;
             }
         }
+
     }
 
+    public void UpdateAccelerationStateAfterAccelerationResetting()
+    {
+        Assert.AreEqual(AccelerationState.AccelerationResetting, o.AccelerationState);
+
+        if (o.transform.localPosition.z == 0)
+        {
+            o.AccelerationState = AccelerationState.None;
+        }
+    }
     public Vector3 ClampToBorder(Vector3 deltaPosition)
     {
         float absTargetPositionX = Mathf.Abs(o.transform.position.x + deltaPosition.x);
@@ -102,10 +116,10 @@ public class StarfighterPlayerMotionControl
             }
         }
         
-        if (o.IsAccelerating)
+        if (o.AccelerationState == AccelerationState.Accelerating)
         {
-            float dampenerFactor = Mathf.Lerp(0, 1, o.accelerometer.Value / o.accelerometer.maxValue);
-            translateVector.z += (o.accelerateFactor - 1) * dampenerFactor * accelerateAxis;
+            float dampenFactor = Mathf.Lerp(0, 1, o.accelerometer.Value / o.accelerometer.maxValue);
+            translateVector.z += (o.accelerateFactor - 1) * dampenFactor * accelerateAxis;
         }
         
         float forwardMoveSpeed = o.throttle;
@@ -135,7 +149,17 @@ public class StarfighterPlayerMotionControl
 
     public void UpdateRotation(float strafeAxis)
     {
+        //TODO Look rotation viewing vector is zero
+        //UnityEngine.Quaternion:LookRotation(Vector3)
+        //StarfighterPlayerMotionControl: UpdateRotation(Single)(at Assets / Scripts / StarfighterPlayerMotionControl.cs:138)
+        //Starfighter: UpdateRotation(Single)(at Assets / Scripts / Starfighter.cs:181)
+        //Starfighter: Update()(at Assets / Scripts / Starfighter.cs:238)
         Quaternion lookRotation = Quaternion.LookRotation(o.TranslateVector);
+        if (o.TranslateVector == Vector3.zero)
+        {
+            Debug.Log("****************************");
+            Time.timeScale = 0;
+        }
 
         float tiltAngle = Vector3.SignedAngle(o.TranslateVector.z * Vector3.forward,o.TranslateVector.z * Vector3.forward + o.TranslateVector.x * Vector3.right, Vector3.down);
         if (strafeAxis != 0)

@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+using StarfighterDefinitions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,24 +8,6 @@ using UnityEngine;
 // TODO event unsubscribing on starfighter dying?
 public class Starfighter : ActiveObject
 {
-    public class AccelerometerChangedEventArgs : EventArgs
-    {
-        public float prevValue;
-    }
-    public class AccelerationResetLocalPositionZChangedEventArgs : EventArgs
-    {
-        public float prevLocalPositionZ;
-    }
-
-    public class PositionChangedEventArgs : EventArgs {
-        public Vector3 prevPosition;
-    }
-
-    public class RotationChangedEventArgs : EventArgs
-    {
-        public Quaternion prevRotation;
-    }
-
     private EventHandler<AccelerometerChangedEventArgs> accelerometerChanged;
     public event EventHandler<AccelerometerChangedEventArgs> AccelerometerChanged
     {
@@ -59,7 +43,7 @@ public class Starfighter : ActiveObject
     private Transform firePositionRight;
 
     public bool IsPaused { get; set; } = false;
-    public bool IsAccelerating { get; set; } = false;
+    public AccelerationState AccelerationState { get; set; } = AccelerationState.None;
     public Vector3 TranslateVector { get; set; }
     public float LastFiredTime { get; set; }
 
@@ -135,9 +119,9 @@ public class Starfighter : ActiveObject
             OnAccelerometerChanged(new AccelerometerChangedEventArgs() { prevValue = prevAccelerometerValue });
         }
 
+        motionControl.UpdateAccelerationStateAfterAccelerometer(accelerateAxis);
 
-        motionControl.UpdateIsAccelerating(accelerateAxis);
-        if (!IsAccelerating && transform.localPosition.z != 0)
+        if (AccelerationState == AccelerationState.AccelerationResetting)
         {
             float prevLocalPositionZ = transform.localPosition.z;
             motionControl.UpdateAccelerationResetLocalPositionZ(framework.DeltaTime);
@@ -145,6 +129,8 @@ public class Starfighter : ActiveObject
             {
                 OnAccelerationResetLocalPositionZChanged(new AccelerationResetLocalPositionZChangedEventArgs() { prevLocalPositionZ = prevLocalPositionZ });
             }
+
+            motionControl.UpdateAccelerationStateAfterAccelerationResetting();
         }
     }
 

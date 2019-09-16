@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StarfighterDefinitions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,10 +14,10 @@ public class LevelMover : MonoBehaviour
         starfighter.AccelerationResetLocalPositionZChanged += Starfighter_OnAccelerationResetLocalPositionZChanged;
     }
 
-    private void Starfighter_OnAccelerationResetLocalPositionZChanged(object sender, Starfighter.AccelerationResetLocalPositionZChangedEventArgs e)
+    private void Starfighter_OnAccelerationResetLocalPositionZChanged(object sender, AccelerationResetLocalPositionZChangedEventArgs e)
     {
         Starfighter o = (Starfighter)sender;
-        float starfighterDeltaZ = o.transform.position.z - e.prevLocalPositionZ;
+        float starfighterDeltaZ = o.transform.localPosition.z - e.prevLocalPositionZ;
         transform.position -= starfighterDeltaZ * Vector3.forward;
     }
 
@@ -38,7 +39,7 @@ public class LevelMover : MonoBehaviour
         {
             float levelMoverPortionOfForwardTranslateVector = 1 * starfighter.throttle;
 
-            if (starfighter.IsAccelerating)
+            if (starfighter.AccelerationState == AccelerationState.Accelerating)
             {
                 // TODO starfighter logic used here?
                 levelMoverPortionOfForwardTranslateVector += (1 - starfighter.starfighterToLevelMoverRatioOfAcceleration)
