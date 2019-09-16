@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using StarfighterDefinitions;
 
 public class AccelerometerText : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class AccelerometerText : MonoBehaviour
         UpdateText(e.starfighter);
     }
 
-    private void Starfighter_OnAccelerometerChanged(object sender, Starfighter.AccelerometerChangedEventArgs e)
+    private void Starfighter_OnAccelerometerChanged(object sender, AccelerometerChangedEventArgs e)
     {
         Starfighter o = (Starfighter)sender;
         UpdateText(o);
