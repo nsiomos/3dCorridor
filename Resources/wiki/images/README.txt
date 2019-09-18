@@ -1,0 +1,1 @@
+Keep hierarchy flat, no subfolders, as moving images around will break their links in the wiki.
