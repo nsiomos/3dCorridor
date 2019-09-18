@@ -12,17 +12,17 @@ public class StarfighterPlayerMotionControl
     {
         this.o = o;
     }
-
+    /*
     public void UpdateAccelerationResetLocalPositionZ(float deltaTime)
     {
         Assert.AreEqual(AccelerationState.AccelerationResetting, o.AccelerationState);
 
         float forwardAccelerateSpeed = o.throttle * o.starfighterToLevelMoverRatioOfAcceleration;
-        float accelerateResetSpeed = forwardAccelerateSpeed * o.accelerationResetSpeedFactor;
+        float accelerateResetSpeed = forwardAccelerateSpeed * o.accelerateResetFactor;
         o.transform.localPosition += -Mathf.Sign(o.transform.localPosition.z) * Mathf.Min(accelerateResetSpeed * deltaTime, Mathf.Abs(o.transform.localPosition.z))
             * Vector3.forward;
     }
-
+    */
     public void UpdateAccelerometer(float deltaTime)
     {
         if (o.AccelerationState != AccelerationState.Accelerating)
@@ -67,7 +67,7 @@ public class StarfighterPlayerMotionControl
             o.AccelerationState = AccelerationState.None;
         }
     }
-    public Vector3 ClampToBorder(Vector3 deltaPosition)
+    public Vector3 ClampSidewardTranslateToBorder(Vector3 deltaPosition)
     {
         float absTargetPositionX = Mathf.Abs(o.transform.position.x + deltaPosition.x);
         float softBorderX = (Section.AddedQuadrantsEachHorizontalDirection + 0.5f) * Quadrant.QuadrantSize - o.moveBorderSoftDistance;
@@ -98,6 +98,15 @@ public class StarfighterPlayerMotionControl
         return deltaPosition;
     }
 
+    public Vector3 ClampForwardAccelerateResetToOrigin(Vector3 deltaPosition)
+    {
+        Assert.AreEqual(AccelerationState.AccelerationResetting, o.AccelerationState);
+
+        deltaPosition.z = MathUtils.AbsMax(deltaPosition.z, Mathf.Abs(o.transform.localPosition.z));
+
+        return deltaPosition;
+    }
+
     public void UpdateTranslateVector(float horizontalAxis, float verticalAxis, float strafeAxis, float accelerateAxis)
     {
         Vector3 translateVector = new Vector3(horizontalAxis, verticalAxis, 0);
@@ -115,13 +124,32 @@ public class StarfighterPlayerMotionControl
                 translateVector.x *= 1 / o.strafeFactor * Mathf.Abs(strafeAxis);
             }
         }
-        
-        if (o.AccelerationState == AccelerationState.Accelerating)
-        {
-            float dampenFactor = Mathf.Lerp(0, 1, o.accelerometer.Value / o.accelerometer.maxValue);
-            translateVector.z += (o.accelerateFactor - 1) * dampenFactor * accelerateAxis;
+
+        float accelerateFactor = 1;
+        switch (o.AccelerationState)
+        {            
+            case AccelerationState.Accelerating:
+                float accelerateLongDistanceDampenFactor = Mathf.Lerp(0, 1, o.accelerometer.Value / o.accelerometer.maxValue);
+                float accelerateDirectionFactor = (accelerateAxis >= 0) ? o.accelerateFactor : 1 / o.accelerateFactor;
+                accelerateFactor = Mathf.Max(accelerateDirectionFactor * accelerateLongDistanceDampenFactor * Mathf.Abs(accelerateAxis), 0.1f);
+                break;
+            case AccelerationState.AccelerationResetting:
+                float accelerateResetLongDistanceDampenFactor = Mathf.Lerp(0, 1, o.accelerometer.Value / o.accelerometer.maxValue);
+                float accelerateResetDirectionFactor = ((o.transform.localPosition.z >= 0) ? o.accelerateFactor : 1 / o.accelerateFactor) * o.accelerateResetFactor;
+                accelerateFactor = Mathf.Max(accelerateResetDirectionFactor * accelerateResetLongDistanceDampenFactor, 0.1f);
+                break;
+            case AccelerationState.None:
+            default:
+                break;
         }
-        
+
+        translateVector.z *= accelerateFactor;
+        //if (o.AccelerationState == AccelerationState.Accelerating)
+        //{
+        //    float dampenFactor = Mathf.Lerp(0, 1, o.accelerometer.Value / o.accelerometer.maxValue);
+        //    translateVector.z += (o.accelerateFactor - 1) * dampenFactor * accelerateAxis;
+        //}
+
         float forwardMoveSpeed = o.throttle;
         float sidewardMoveSpeed = o.manouverabilityAt100 * 100 * 100 / o.throttle;
 
@@ -142,7 +170,12 @@ public class StarfighterPlayerMotionControl
         float starfighterPortionOfForwardTranslateVector = o.starfighterToLevelMoverRatioOfAcceleration * GetAcceleratePortionOfForwardTranslateVector();
         Vector3 deltaPosition = new Vector3(o.TranslateVector.x, o.TranslateVector.y, starfighterPortionOfForwardTranslateVector) * deltaTime;
 
-        deltaPosition = ClampToBorder(deltaPosition);
+        deltaPosition = ClampSidewardTranslateToBorder(deltaPosition);
+
+        if (o.AccelerationState == AccelerationState.AccelerationResetting)
+        {
+            deltaPosition = ClampForwardAccelerateResetToOrigin(deltaPosition);
+        }
 
         o.transform.position += deltaPosition;
     }

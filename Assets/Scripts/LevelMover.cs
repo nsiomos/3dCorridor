@@ -16,9 +16,10 @@ public class LevelMover : MonoBehaviour
 
     private void Starfighter_OnAccelerationResetLocalPositionZChanged(object sender, AccelerationResetLocalPositionZChangedEventArgs e)
     {
-        Starfighter o = (Starfighter)sender;
-        float starfighterDeltaZ = o.transform.localPosition.z - e.prevLocalPositionZ;
-        transform.position -= starfighterDeltaZ * Vector3.forward;
+        // TODO needed?
+        //Starfighter o = (Starfighter)sender;
+        //float starfighterDeltaZ = o.transform.localPosition.z - e.prevLocalPositionZ;
+        //transform.position -= starfighterDeltaZ * Vector3.forward;
     }
 
     void Awake()
@@ -36,7 +37,7 @@ public class LevelMover : MonoBehaviour
     void Update()
     {
         if (starfighter != null)
-        {
+        {// TODO in event?
             float levelMoverPortionOfForwardTranslateVector = 1 * starfighter.throttle;
 
             if (starfighter.AccelerationState == AccelerationState.Accelerating)
@@ -45,8 +46,13 @@ public class LevelMover : MonoBehaviour
                 levelMoverPortionOfForwardTranslateVector += (1 - starfighter.starfighterToLevelMoverRatioOfAcceleration)
                     * starfighter.GetAcceleratePortionOfForwardTranslateVector();
             }
+            else if (starfighter.AccelerationState == AccelerationState.AccelerationResetting)
+            {
+                levelMoverPortionOfForwardTranslateVector -= (1 - starfighter.starfighterToLevelMoverRatioOfAcceleration)
+                    * starfighter.GetAcceleratePortionOfForwardTranslateVector();
+            }
 
-            transform.position += levelMoverPortionOfForwardTranslateVector * Vector3.forward * Time.deltaTime;
+                transform.position += levelMoverPortionOfForwardTranslateVector * Vector3.forward * Time.deltaTime;
         }
     }
 }

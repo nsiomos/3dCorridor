@@ -63,7 +63,7 @@ public class Starfighter : ActiveObject
     public float accelerometerDepletionRate;
     public float accelerometerRefillRate;
     public float starfighterToLevelMoverRatioOfAcceleration;
-    public float accelerationResetSpeedFactor;
+    public float accelerateResetFactor;
     public float fireRate;
 
     protected virtual void OnAccelerometerChanged(AccelerometerChangedEventArgs e)
@@ -120,7 +120,7 @@ public class Starfighter : ActiveObject
         }
 
         motionControl.UpdateAccelerationStateAfterAccelerometer(accelerateAxis);
-
+        /*
         if (AccelerationState == AccelerationState.AccelerationResetting)
         {
             float prevLocalPositionZ = transform.localPosition.z;
@@ -131,7 +131,7 @@ public class Starfighter : ActiveObject
             }
 
             motionControl.UpdateAccelerationStateAfterAccelerationResetting();
-        }
+        }*/
     }
 
     private void ResetTranslateVector()
@@ -154,10 +154,20 @@ public class Starfighter : ActiveObject
     private void UpdatePosition()
     {
         Vector3 prevPosition = transform.position;
+        float prevLocalPositionZ = transform.localPosition.z;
         motionControl.UpdatePosition(framework.DeltaTime);
         if (prevPosition != transform.position)
         {
             OnPositionChanged(new PositionChangedEventArgs() { prevPosition = prevPosition });
+        }
+        if (transform.localPosition.z != prevLocalPositionZ)
+        {
+            OnAccelerationResetLocalPositionZChanged(new AccelerationResetLocalPositionZChangedEventArgs() { prevLocalPositionZ = prevLocalPositionZ });
+        }
+
+        if (AccelerationState == AccelerationState.AccelerationResetting)
+        {
+            motionControl.UpdateAccelerationStateAfterAccelerationResetting();
         }
     }
 
