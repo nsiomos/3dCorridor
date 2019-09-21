@@ -62,7 +62,7 @@ public class Starfighter : ActiveObject
     public ClampedValue accelerometer = new ClampedValue();
     public float accelerometerDepletionRate;
     public float accelerometerRefillRate;
-    public float starfighterToLevelMoverRatioOfAcceleration;
+    public float initialStarfighterToLevelMoverRatioOfAcceleration;
     public float accelerateResetFactor;
     public float fireRate;
 
@@ -242,6 +242,6 @@ public class Starfighter : ActiveObject
 
     public float GetAcceleratePortionOfForwardTranslateVector()
     {
-        return motionControl.GetAcceleratePortionOfForwardTranslateVector();
+        return motionControl.GetAccelerateComponentOfForwardTranslateVector();
     }
 }

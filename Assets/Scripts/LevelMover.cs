@@ -43,12 +43,12 @@ public class LevelMover : MonoBehaviour
             if (starfighter.AccelerationState == AccelerationState.Accelerating)
             {
                 // TODO starfighter logic used here?
-                levelMoverPortionOfForwardTranslateVector += (1 - starfighter.starfighterToLevelMoverRatioOfAcceleration)
+                levelMoverPortionOfForwardTranslateVector += (1 - starfighter.initialStarfighterToLevelMoverRatioOfAcceleration)
                     * starfighter.GetAcceleratePortionOfForwardTranslateVector();
             }
             else if (starfighter.AccelerationState == AccelerationState.AccelerationResetting)
             {
-                levelMoverPortionOfForwardTranslateVector -= (1 - starfighter.starfighterToLevelMoverRatioOfAcceleration)
+                levelMoverPortionOfForwardTranslateVector -= (1 - starfighter.initialStarfighterToLevelMoverRatioOfAcceleration)
                     * starfighter.GetAcceleratePortionOfForwardTranslateVector();
             }
 

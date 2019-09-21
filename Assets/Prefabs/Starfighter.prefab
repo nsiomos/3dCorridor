@@ -97,8 +97,8 @@ MonoBehaviour:
     maxValue: 100
   accelerometerDepletionRate: 30
   accelerometerRefillRate: 20
-  starfighterToLevelMoverRatioOfAcceleration: 0.2
-  accelerationResetSpeedFactor: 1.25
+  initialStarfighterToLevelMoverRatioOfAcceleration: 0.5
+  accelerateResetFactor: 2
   fireRate: 10
 --- !u!54 &-9118455856217413552
 Rigidbody:
